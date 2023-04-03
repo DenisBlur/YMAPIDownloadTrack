@@ -24,7 +24,7 @@ namespace ConsoleApp3
             var downloadInfo = await GetRequest("https://api.music.yandex.net/tracks/111673390/download-info");
             //Преобразование Json в модель
             var jsonDownloadInfo = JsonConvert.DeserializeObject<Root>(downloadInfo);
-            //Проверка на наличие ссылки
+            //Проверка на null
             if (jsonDownloadInfo.result != null)
             {
                 //Получение данных для создания ссылки на трек
