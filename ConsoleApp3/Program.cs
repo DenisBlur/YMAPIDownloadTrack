@@ -24,12 +24,20 @@ namespace ConsoleApp3
             var downloadInfo = await GetRequest("https://api.music.yandex.net/tracks/111673390/download-info");
             //Преобразование Json в модель
             var jsonDownloadInfo = JsonConvert.DeserializeObject<Root>(downloadInfo);
-            //Получение данных для создания ссылки на трек
-            var trackXML = await GetRequest(jsonDownloadInfo.result[0].downloadInfoUrl.ToString());
-            //Получение ссылки на трек
-            var trackUrl = CreateDownloadUrl(trackXML);
-            //отображение её в консоли
-            Console.WriteLine(trackUrl);
+            //Проверка на наличие ссылки
+            if (jsonDownloadInfo.result != null)
+            {
+                //Получение данных для создания ссылки на трек
+                var trackXML = await GetRequest(jsonDownloadInfo.result[0].downloadInfoUrl.ToString());
+                //Получение ссылки на трек
+                var trackUrl = CreateDownloadUrl(trackXML);
+                //отображение её в консоли
+                Console.WriteLine(trackUrl);
+            }
+            else 
+            {
+                Console.WriteLine("error check token: " + JsonConvert.SerializeObject(jsonDownloadInfo));
+            }
             Console.ReadLine();
         }
 
