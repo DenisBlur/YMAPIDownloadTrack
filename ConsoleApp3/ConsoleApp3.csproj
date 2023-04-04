@@ -46,6 +46,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\TrackDownloadBuild.cs" />
+    <Compile Include="Models\DownloadInfo.cs" />
+    <Compile Include="Models\TrackInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using ConsoleApp3.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -16,14 +17,20 @@ namespace ConsoleApp3
     {
 
         static HttpClient httpClient = new HttpClient();
-        static string userToken = "your token";
+        static string baseUrl = "https://api.music.yandex.net/";
+        static string userToken = "y0_AgAAAAAV_ACCAAG8XgAAAADgGYHzG_11cfSmSSuXwiBFskpnlLi3aYc";
 
         static async Task Main(string[] args)
-        { 
+        {
+
+            //ID трека
+            string trackId = "87360749";
+
             //Получение информации для скачивания
-            var downloadInfo = await GetRequest("https://api.music.yandex.net/tracks/111673390/download-info");
+            var downloadInfo = await GetRequest(baseUrl + "tracks/" + trackId + "/download-info");
+
             //Преобразование Json в модель
-            var jsonDownloadInfo = JsonConvert.DeserializeObject<Root>(downloadInfo);
+            var jsonDownloadInfo = JsonConvert.DeserializeObject<TrackDownloadBuild>(downloadInfo);
             //Проверка на null
             if (jsonDownloadInfo.result != null)
             {
@@ -32,9 +39,28 @@ namespace ConsoleApp3
                 //Получение ссылки на трек
                 var trackUrl = CreateDownloadUrl(trackXML);
                 //отображение её в консоли
+                Console.WriteLine("Track URL: ");
                 Console.WriteLine(trackUrl);
+                Console.WriteLine("");
+                Console.WriteLine("Track info: ");
+                //Получние данных о треке
+                var trackData = await GetRequest(baseUrl + "tracks/" + trackId);
+                //Вставка в модель
+                var jsonTrackData = JsonConvert.DeserializeObject<TrackInfo>(trackData);
+                //Вывод названия title трека
+                Console.WriteLine("Track name: " + jsonTrackData.result[0].title);
+                //Вывод всех артистов трека
+                foreach (var item in jsonTrackData.result[0].artists)
+                {
+                    Console.WriteLine("Artict name: " + item.name);
+                }
+                //Вывод всех альбомов трека
+                foreach (var item in jsonTrackData.result[0].albums)
+                {
+                    Console.WriteLine("Album name: " + item.title);
+                }
             }
-            else 
+            else
             {
                 Console.WriteLine("error check token: " + JsonConvert.SerializeObject(jsonDownloadInfo));
             }
@@ -54,7 +80,7 @@ namespace ConsoleApp3
             //Создание подписи, лучше ничего не менять
             string sign = GetMdHesh(MD5.Create(), $"XGRlBW9FXlekgbPrRHuSiA{xml.Path.Substring(1, xml.Path.Length - 1)}{xml.S}");
 
-            return "https://"+xml.Host+"/get-mp3/"+ sign + "/" + xml.Ts+ xml.Path;
+            return "https://" + xml.Host + "/get-mp3/" + sign + "/" + xml.Ts + xml.Path;
         }
 
         //Функция для создания подписи
@@ -82,56 +108,5 @@ namespace ConsoleApp3
             var responseText = await response.Content.ReadAsStringAsync();
             return responseText;
         }
-    }
+    } 
 }
-
-
-//XML модель для удобства)
-[XmlRoot(ElementName = "download-info")]
-public class Downloadinfo
-{
-
-    [XmlElement(ElementName = "host")]
-    public string Host { get; set; }
-
-    [XmlElement(ElementName = "path")]
-    public string Path { get; set; }
-
-    [XmlElement(ElementName = "ts")]
-    public string Ts { get; set; }
-
-    [XmlElement(ElementName = "region")]
-    public int Region { get; set; }
-
-    [XmlElement(ElementName = "s")]
-    public string S { get; set; }
-}
-
-
-//Модель для удобства)
-public class InvocationInfo
-{
-    [JsonProperty("req-id")]
-    public string reqid { get; set; }
-    public string hostname { get; set; }
-
-    [JsonProperty("exec-duration-millis")]
-    public int execdurationmillis { get; set; }
-}
-
-public class Result
-{
-    public string codec { get; set; }
-    public bool gain { get; set; }
-    public bool preview { get; set; }
-    public string downloadInfoUrl { get; set; }
-    public bool direct { get; set; }
-    public int bitrateInKbps { get; set; }
-}
-
-public class Root
-{
-    public InvocationInfo invocationInfo { get; set; }
-    public List<Result> result { get; set; }
-}
-
