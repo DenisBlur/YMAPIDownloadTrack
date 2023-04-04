@@ -59,12 +59,20 @@ namespace ConsoleApp3
                 {
                     Console.WriteLine("Album name: " + item.title);
                 }
+                Console.WriteLine("");
+                Console.WriteLine(CreateImageLink(jsonTrackData.result[0].ogImage, 200));
             }
             else
             {
                 Console.WriteLine("error check token: " + JsonConvert.SerializeObject(jsonDownloadInfo));
             }
             Console.ReadLine();
+        }
+
+        static string CreateImageLink(string url, int size)
+        {
+            string imageUrl = url.Substring(0, url.IndexOf("%"));
+            return "https://"+ imageUrl + size + "x" + size;
         }
 
         static string CreateDownloadUrl(string trackXML)
