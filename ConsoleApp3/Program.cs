@@ -34,8 +34,29 @@ namespace ConsoleApp3
             //Проверка на null
             if (jsonDownloadInfo.result != null)
             {
+
+                Console.WriteLine("Choose quality");
+
                 //Получение данных для создания ссылки на трек
-                var trackXML = await GetRequest(jsonDownloadInfo.result[0].downloadInfoUrl.ToString());
+                for (int i = 0; i < jsonDownloadInfo.result.Count; i++)
+                {
+                    var urlResult = jsonDownloadInfo.result[i];
+                    Console.WriteLine(i + ": " + urlResult.bitrateInKbps);
+                }
+
+                string qualityUser = Console.ReadLine();
+                int qualityChoose = 0;
+                switch (qualityUser)
+                {
+                    case "0": qualityChoose = 0; break;
+                    case "1": qualityChoose = 1; break;
+                    case "2": qualityChoose = 2; break;
+                    default:
+                        Console.WriteLine("not foundm, default quality = 0");
+                        break;
+                }
+
+                var trackXML = await GetRequest(jsonDownloadInfo.result[qualityChoose].downloadInfoUrl.ToString());
                 //Получение ссылки на трек
                 var trackUrl = CreateDownloadUrl(trackXML);
                 //отображение её в консоли
